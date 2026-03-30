@@ -110,6 +110,10 @@ st.markdown(
             border-radius: 16px;
             padding: 0.9rem 1rem;
             margin-bottom: 0.8rem;
+            color: #221c14 !important;
+        }
+        .point-box * {
+            color: #221c14 !important;
         }
         h1, h2, h3 {
             color: #221c14;
