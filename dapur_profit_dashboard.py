@@ -13,7 +13,8 @@ st.set_page_config(
 # -------------------------------------------------
 DAPUR_SHARE_PCT = 25
 PRICE_PER_PORTION = 8.0
-DAPUR_PER_PORTION = PRICE_PER_PORTION * (DAPUR_SHARE_PCT / 100)
+AVG_SATAYS_PER_CUSTOMER = 10
+DAPUR_PER_SALE = 4.0
 MONDAYS_PER_MONTH = 4
 SATURDAYS_PER_MONTH = 4
 
@@ -133,7 +134,9 @@ st.markdown(
             A clear visual case for why this is a <strong>low-risk, high-upside</strong> opportunity for Dapur.
         </p>
         <p style="margin-bottom:0; color:#f2ead8;">
-            Core assumption used throughout: <strong>Dapur receives {DAPUR_SHARE_PCT}% of revenue</strong>, equal to <strong>{format_currency(DAPUR_PER_PORTION)} per £{PRICE_PER_PORTION:,.0f} portion</strong>.
+            Core assumption used throughout: <strong>Dapur receives {DAPUR_SHARE_PCT}% of revenue</strong>, equal to
+            <strong>{format_currency(DAPUR_PER_SALE)} per average sale</strong> based on an average customer purchase of
+            <strong>{AVG_SATAYS_PER_CUSTOMER} satays</strong>.
         </p>
     </div>
     """,
@@ -145,7 +148,7 @@ st.markdown(
 # -------------------------------------------------
 metric_1, metric_2, metric_3, metric_4 = st.columns(4)
 with metric_1:
-    st.metric("Dapur per portion", format_currency(DAPUR_PER_PORTION))
+    st.metric("Dapur per sale", format_currency(DAPUR_PER_SALE))
 with metric_2:
     st.metric("Best Saturday profit", format_currency(saturday_data["Dapur Profit"].max()))
 with metric_3:
@@ -188,7 +191,7 @@ with col_right:
         <div style="margin-bottom:0.6rem;">• No ingredient cost</div>
         <div style="margin-bottom:0.6rem;">• No additional staffing required</div>
         <div style="margin-bottom:0.6rem;">• Operations handled fully by us</div>
-        <div style="margin-top:1rem; color:#ddc07a;">Every portion sold creates revenue for Dapur with minimal burden on the business.</div>
+        <div style="margin-top:1rem; color:#ddc07a;">Every sale made creates revenue for Dapur with minimal burden on the business.</div>
         """,
         unsafe_allow_html=True,
     )
@@ -215,10 +218,19 @@ with sat_left:
 with sat_right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     fig_sat, ax_sat = plt.subplots(figsize=(8, 4.8))
-    ax_sat.bar(saturday_data["Scenario"], saturday_data["Dapur Profit"])
+    sat_bars = ax_sat.bar(saturday_data["Scenario"], saturday_data["Dapur Profit"])
     ax_sat.set_title("Saturday: Dapur profit by scenario", pad=15)
     ax_sat.set_ylabel("Profit (£)")
     ax_sat.set_xlabel("")
+    for bar, value in zip(sat_bars, saturday_data["Dapur Profit"]):
+        ax_sat.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 8,
+            f"£{value}",
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
     plt.xticks(rotation=15, ha="right")
     plt.tight_layout()
     st.pyplot(fig_sat, clear_figure=True)
@@ -245,10 +257,19 @@ with mon_left:
 with mon_right:
     st.markdown('<div class="card">', unsafe_allow_html=True)
     fig_mon, ax_mon = plt.subplots(figsize=(8, 4.8))
-    ax_mon.bar(monday_data["Scenario"], monday_data["Dapur Profit"])
+    mon_bars = ax_mon.bar(monday_data["Scenario"], monday_data["Dapur Profit"])
     ax_mon.set_title("Monday: Dapur profit by scenario", pad=15)
     ax_mon.set_ylabel("Profit (£)")
     ax_mon.set_xlabel("")
+    for bar, value in zip(mon_bars, monday_data["Dapur Profit"]):
+        ax_mon.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 5,
+            f"£{value}",
+            ha="center",
+            va="bottom",
+            fontsize=10,
+        )
     plt.tight_layout()
     st.pyplot(fig_mon, clear_figure=True)
     st.markdown('</div>', unsafe_allow_html=True)
@@ -256,22 +277,54 @@ with mon_right:
 st.markdown("")
 
 # -------------------------------------------------
-# Per portion and quick understanding section
+# Per sale and quick understanding section
 # -------------------------------------------------
-portion_col1, portion_col2, portion_col3, portion_col4 = st.columns(4)
-with portion_col1:
-    st.info(f"""**10 portions sold**
-    Dapur earns **{format_currency(10 * DAPUR_PER_PORTION)}**""")
+sale_col1, sale_col2, sale_col3, sale_col4 = st.columns(4)
 
-    st.info(f"""**25 portions sold**
-    Dapur earns **{format_currency(25 * DAPUR_PER_PORTION)}**""")
+with sale_col1:
+    st.info(f"""**10 sales**
+Dapur earns **{format_currency(10 * DAPUR_PER_SALE)}**""")
 
-    st.info(f"""**50 portions sold**
-    Dapur earns **{format_currency(50 * DAPUR_PER_PORTION)}**""")
+with sale_col2:
+    st.info(f"""**25 sales**
+Dapur earns **{format_currency(25 * DAPUR_PER_SALE)}**""")
 
-    st.info(f"""**100 portions sold**
-    Dapur earns **{format_currency(100 * DAPUR_PER_PORTION)}**""")
-    st.markdown("")
+with sale_col3:
+    st.info(f"""**50 sales**
+Dapur earns **{format_currency(50 * DAPUR_PER_SALE)}**""")
+
+with sale_col4:
+    st.info(f"""**100 sales**
+Dapur earns **{format_currency(100 * DAPUR_PER_SALE)}**""")
+
+st.markdown("")
+
+# -------------------------------------------------
+# Pilot proposal
+# -------------------------------------------------
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("Pilot proposal")
+st.caption("A short pilot makes the idea easy to test with minimal commitment.")
+
+pilot_col1, pilot_col2, pilot_col3 = st.columns(3)
+with pilot_col1:
+    st.metric("Pilot length", "4 weeks")
+with pilot_col2:
+    st.metric("Core trial day", "Monday")
+with pilot_col3:
+    st.metric("Review point", "After week 4")
+
+st.markdown(
+    """
+    <div class="point-box"><strong>Start small:</strong> trial the concept for four Mondays to test demand in a controlled way.</div>
+    <div class="point-box"><strong>Measure simply:</strong> track portions sold, total revenue, and Dapur's share each week.</div>
+    <div class="point-box"><strong>Expand if successful:</strong> if demand is strong, add Saturday walk-in trading as the upside phase.</div>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("")
 
 # -------------------------------------------------
 # Weekly / monthly / annual view
@@ -283,13 +336,12 @@ st.caption("This turns the idea from a one-day pop-up into a clear recurring rev
 weekly_options = pd.DataFrame(
     {
         "Scenario": [
-            "Monday only – Conservative",
-            "Monday only – Moderate",
-            "Monday only – Strong",
-            "Saturday + Monday – Moderate mix",
-            "Saturday + Monday – Peak Saturday + Strong Monday",
+            "Cautious case",
+            "Base case",
+            "Upside case",
+            "Expanded upside case",
         ],
-        "Weekly Profit to Dapur": [30, 60, 100, 240 + 60, 600 + 100],
+        "Weekly Profit to Dapur": [30, 100, 300, 700],
     }
 )
 weekly_options["Monthly Profit to Dapur"] = weekly_options["Weekly Profit to Dapur"] * 4
@@ -314,21 +366,29 @@ st.caption("A direct comparison of the proposal in its simplest form versus the 
 comparison_data = pd.DataFrame(
     {
         "Model": [
-            "Monday only – Conservative",
-            "Monday only – Strong",
-            "Saturday only – Busy Day",
-            "Saturday + Monday – Moderate mix",
-            "Saturday + Monday – Peak mix",
+            "Cautious case",
+            "Base case",
+            "Upside case",
+            "Expanded upside case",
         ],
-        "Dapur Profit": [30, 100, 240, 300, 700],
+        "Dapur Profit": [30, 100, 300, 700],
     }
 )
 
 fig_compare, ax_compare = plt.subplots(figsize=(10, 5.2))
-ax_compare.bar(comparison_data["Model"], comparison_data["Dapur Profit"])
+bars = ax_compare.bar(comparison_data["Model"], comparison_data["Dapur Profit"])
 ax_compare.set_title("How Dapur's earnings increase across different operating models", pad=15)
 ax_compare.set_ylabel("Profit (£)")
 ax_compare.set_xlabel("")
+for bar, value in zip(bars, comparison_data["Dapur Profit"]):
+    ax_compare.text(
+        bar.get_x() + bar.get_width() / 2,
+        value + 10,
+        f"£{value}",
+        ha="center",
+        va="bottom",
+        fontsize=10,
+    )
 plt.xticks(rotation=18, ha="right")
 plt.tight_layout()
 st.pyplot(fig_compare, clear_figure=True)
@@ -365,6 +425,35 @@ with calc_m3:
     st.metric("4-week equivalent", format_currency(month_projection))
 with calc_m4:
     st.metric("Annual equivalent", format_currency(year_projection))
+
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("")
+
+# -------------------------------------------------
+# Next steps
+# -------------------------------------------------
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("Recommended next steps")
+st.caption("A simple route from proposal to launch.")
+
+step1, step2, step3, step4 = st.columns(4)
+with step1:
+    st.markdown("""
+    <div class="point-box"><strong>1. Approve pilot</strong><br>Agree a 4-week Monday trial.</div>
+    """, unsafe_allow_html=True)
+with step2:
+    st.markdown("""
+    <div class="point-box"><strong>2. Confirm setup</strong><br>Agree the exact trading and prep arrangement.</div>
+    """, unsafe_allow_html=True)
+with step3:
+    st.markdown("""
+    <div class="point-box"><strong>3. Launch pilot</strong><br>Start trading and track weekly results.</div>
+    """, unsafe_allow_html=True)
+with step4:
+    st.markdown("""
+    <div class="point-box"><strong>4. Review & expand</strong><br>Decide whether to add Saturday upside.</div>
+    """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
