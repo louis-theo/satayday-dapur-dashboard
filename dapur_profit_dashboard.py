@@ -404,8 +404,8 @@ st.markdown("")
 # Live calculator
 # -------------------------------------------------
 st.markdown('<div class="card">', unsafe_allow_html=True)
-st.subheader("Live meeting calculator")
-st.caption("Use this during the proposal meeting to instantly show Dapur's share under any sales scenario.")
+st.subheader("Live profit calculator")
+st.caption("Instantly view Dapur's share of revenue under any sales scenario.")
 
 calc_col1, calc_col2, calc_col3 = st.columns(3)
 with calc_col1:
